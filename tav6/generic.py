@@ -24,7 +24,7 @@ def get_jwt(login, key):
         exit()
     return json.loads(res.text)['token']
 
-def get_headers(string login, string key):
+def get_headers(login, key):
     url = transip_base_url + 'auth'
     pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, key)
     data = '{ "login": "' + login + '", "nonce": ' + randomStringDigits(10)+ ' }'
