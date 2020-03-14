@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-
 import requests
 import json
-import tav6
+import transip_api_v6
+
+login          = 'jvgemert'
+keyfile        = 'test copy.pem'
+domain         = 'gemert.net'
+find_dns_entry = 'test-script'
 
 # Get public IP
 res = requests.get('https://ipinfo.io')
@@ -11,40 +15,51 @@ if res.status_code != 200:
     exit(1)
 pub_ip=json.loads(res.text)['ip']
 
-# Get JWT for authentication against transip api V6
-key_file = open("test copy.pem", "r")
+# Get Header for authentication against transip api V6
+key_file = open(keyfile, "r")
 key = key_file.read()
 key_file.close()
-
-jwt = tav6.generic.get_jwt('jvgemert', key)
-# Create header with JWT
-headers = tav6.generic.get_header('jvgemert', key)
+headers = transip_api_v6.Generic.get_headers(login, key)
 
 # Request domains managed by this account
-# res = json.loads(requests.get(url, headers=headers).text)
-# print(json.dumps(tav6.get_domains,indent=2))
-domains=tav6.domains.get(headers)
-print(domains)
-exit()
+domains=transip_api_v6.Domains.get(headers)
+print(json.dumps(domains,indent=2))
+print()
 
 # Request DNS entries for this domain
-url='https://api.transip.nl/v6/domains/gemert.net/dns'
-res = json.loads(requests.get(url, headers=headers).text)
-print(json.dumps(res,indent=2))
+dns_entries = transip_api_v6.Domains.get_dns(headers, domain)
+print(json.dumps(dns_entries,indent=2))
+print()
+
+# Find entry
+found_dns_entries = []
+for dns_entry in dns_entries['dnsEntries']:
+  if dns_entry['name'] == find_dns_entry and dns_entry['type'] == 'A':
+    found_dns_entries.append(dns_entry)
+    print (dns_entry)
+print (json.dumps(found_dns_entries))
+print()
 
 # Change entry for this domain with current public IP
-data = '''{
-  "dnsEntry": {
-    "name": "test-script",
-    "expire": 3600,
-    "type": "A",
-    "content": "''' + pub_ip + '''"
+if len(found_dns_entries) == 0:
+  data = '''{
+    "dnsEntry": {
+      "name": "''' + find_dns_entry + '''",
+      "expire": 300,
+      "type": "A",
+      "content": "''' + pub_ip + '''"
+    }
   }
-}
-'''
-
-res = requests.patch(url, headers=headers, data=data)
-if res.status_code != 204:
-    print('Changing dns entry failed with status code: ' + str(res.status_code))
-    exit()
-print('DNS entry change was succesful')
+  '''
+  res = transip_api_v6.Domains.post_dns(headers, domain, data)
+elif len(found_dns_entries) == 1:
+  if found_dns_entries[0]['content'] == pub_ip:
+    print('No change needed')
+  else:
+    print('Change dns entry')
+    print('From: ' + json.dumps(found_dns_entries[0]))
+    found_dns_entries[0]['content'] = pub_ip
+    print('To  : ' + json.dumps(found_dns_entries[0]))
+    res = transip_api_v6.Domains.patch_dns(headers, domain, '{"dnsEntry": ' + json.dumps(found_dns_entries[0]) +'}')
+else:
+  print('Multiple entries found, can\'t determine which to change (if any).')
