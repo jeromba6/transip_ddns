@@ -12,6 +12,8 @@ def randomDigits(self, stringLength=10):
     return ''.join(random.choice(string.digits) for i in range(stringLength))
 
 class Generic:
+    # transip_base_url='https://api.transip.nl/v6/domains'
+    
     def get_jwt(login, key):
         url = _transip_base_url + 'auth'
         pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, key)
