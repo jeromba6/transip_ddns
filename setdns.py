@@ -24,12 +24,12 @@ headers = transip_api_v6.Generic(login, key).get_headers()
 
 # Request domains managed by this account
 domains=transip_api_v6.Domains(headers)
-managed_domains=domains.get()
+managed_domains=domains.list_domains()
 print(json.dumps(managed_domains,indent=2))
 print()
 
 # Request DNS entries for this domain
-dns_entries = domains.get_dns(domain)
+dns_entries = domains.list_dns_entries(domain)
 print(json.dumps(dns_entries,indent=2))
 print()
 
@@ -53,7 +53,7 @@ if len(found_dns_entries) == 0:
     }
   }
   '''
-  domains.post_dns(domain, data)
+  domains.add_dns_entry(domain, data)
 elif len(found_dns_entries) == 1:
   if found_dns_entries[0]['content'] == pub_ip:
     print('No change needed')
@@ -62,6 +62,6 @@ elif len(found_dns_entries) == 1:
     print('From: ' + json.dumps(found_dns_entries[0]))
     found_dns_entries[0]['content'] = pub_ip
     print('To  : ' + json.dumps(found_dns_entries[0]))
-    domains.patch_dns(domain, '{"dnsEntry": ' + json.dumps(found_dns_entries[0]) +'}')
+    domains.update_dns_entry(domain, '{"dnsEntry": ' + json.dumps(found_dns_entries[0]) +'}')
 else:
   print('Multiple entries found, can\'t determine which to change (if any).')
