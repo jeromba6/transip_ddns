@@ -1,55 +1,67 @@
 #!/usr/bin/env python3
-
-"""setdns.py retrives the public IP and sets it to a predefinde DNS entry"""
-
-__author__      = "Jeroen van Gemert"
-__copyright__   = "Copyright 2020, Planet Earth"
-
-import urllib.request
+import requests
 import json
-from transip.service.domain import DomainService
+import transip_api_v6
 
-# contents = json.loads(urllib.request.urlopen("http://ipinfo.io").read())
-# print (json.dumps(contents,indent=2))
-basedomain='gemert.net'
-domainentry='update-test'
-key='''-----BEGIN PRIVATE KEY-----
-MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDIYjaYtIh8EDSu
-wmVxRaXm6gtA9cRGds2juYvO+za8oQ+36OS4J35Hig/XE0Zr1hrfjGfnuy3bubrj
-zB/w3Hg4Kl63oBel/2HSmaNczR12dMGZzMqyHHXyZKl/cYjzhbgAucSM/q+inbuL
-1gK0O9+Ov2Uc8iMfeRBG/XBNo5QVVzWYF+BSmojobawGMIR/LKKKJL6HNzdcz5yr
-PAWR0HfukpwuZcehEJca/TLgUf/FoBfRKm+tFVyVNYB6v2kvI0ASMMhsnsEnQ0CX
-0mi9cmyXB6iB/5SnwKkXZIwPXwmyXvSwIdZiTU70QNlfGKrIGuv5+fDNd1+g7XDV
-yjzS9HObAgMBAAECggEAIDSQu8hAK1hbbz71GNhtyogRGPam/gA4GrlGfBSp/nUQ
-VqmKoQJP7GWHGDUT218E4KrrRDY0L51RKS10cLyuYbCFmpOTWW2LJlLlC5Q3yQMI
-3pQoe6nRVwzQpRf1P9Zc9Vjl+xcv2T3ql5Xkx1zcGFAwiw9rj7JgaFhxRTkmIquh
-oyHkMHW74hSVlx55HhDtc1uTK3aWnEhKJfj/dRmA5Hald3ixoaASsZWA3ZTr7B8R
-b/2mAGml+/dEYuspbkIZW9Bryv7UlpT2E9/7SpV8c05Spehl12EfMcJhaFJDe1G4
-kkCqbl8Uks+jm9/aWSUIUzcHuZDw1PAiVqPVVcyfkQKBgQDtHp89U1QZBuAXI3KM
-FOeOFUD+Vb4oLhTyWVsWE6jJjxfGVyGtIRNw6rHrHumlN8Fpb4ijEdvoNQkPiKnl
-HYGnUp7BkbvpgncjL6b4br3b9cXtcpDHdTD5dAir+j3sDrVvAG6YXnuyZONOXxXm
-oVp/sd+DBArBQFqHgQICOxgNowKBgQDYVsaZEoa22tuhrVfo5UxoRq+hAnMN5cTv
-iGof1Qt2t2BYVEjpz2YpVQ/ksCHbtSVxRzw00qW4xzHNzxJ4JkDAlerxQy+nqBCp
-emWMADs2H/ALTvCFaEA+rGLe+MYf0ANaw94AbR44jKNcGqMrwwVQpC9CY3/C0A9L
-pg1ssZ/xqQKBgFZrG6QRE4xPeipUq/GryLx6uIY5H6WrLc0pjc3c+l4DPan2pXpg
-nKJBlvhW+tZRHLddg9HSt2/IrHWx3CF5gIBH1z46695twxfazSKr0Zwx1aH1aBiZ
-eHDhvitXd2vp7Gv5H1V+0dwxcrpkYyn70mzJmek49uZ5msTZ2q6PdPO7AoGAapi3
-Wo1KW6cTOWLUQilZsLfDqi4uytZAZ1ZsFCtBbsmEa4F8O9i5mfwTzLcMt9lWDa7v
-94cjqRxdae9yRkly9nHoReC5Bn9FVny8tHMYud6axLesw89OeJMwVHV4CgzQ2lRQ
-ex1JGswRYjyt0c5SPB3qO2gTd8ZVAw1a6AfNq6ECgYB/tndONcYppD/j3278+3Wy
-EV/P0CEBVrvXboUyxkFykZ5CFYkpNEisQ4Imu9PUGCOqSxxOoXQ2TyyzIb9nY1g1
-K2Xs9J9sOEoGmmWJ+RJkHiwNkAIAbuYaluqtRyqY0w2z19JZKRv1u9vuWP1+f5G6
-+5aF0x9Xgt2Tvq3T1caywg==
------END PRIVATE KEY-----'''
+login          = 'jvgemert'
+keyfile        = 'test copy.pem'
+domain         = 'gemert.net'
+find_dns_entry = 'test-script'
 
-dnsservice = DomainService('jvgemert', private_key=key)
-#print(dnsservice.get_domain_names())
-# print(dnsservice.batch_get_info(['gemert.net','just4ward.net']))
-#print(dnsservice.check_availability(basedomain))
-entries=dnsservice.get_info(basedomain)
-print(entries)
+# Get public IP
+res = requests.get('https://ipinfo.io')
+if res.status_code != 200:
+    print('Failed to get public ip.')
+    exit(1)
+pub_ip=json.loads(res.text)['ip']
 
+# Get Header for authentication against transip api V6
+key_file = open(keyfile, "r")
+key = key_file.read()
+key_file.close()
+# ph = transip_api_v6.Generic(login, key)
+headers = transip_api_v6.Generic(login, key).get_headers()
 
+# Request domains managed by this account
+domains=transip_api_v6.Domains(headers)
+managed_domains=domains.get()
+print(json.dumps(managed_domains,indent=2))
+print()
 
+# Request DNS entries for this domain
+dns_entries = domains.get_dns(domain)
+print(json.dumps(dns_entries,indent=2))
+print()
 
-# print(dnsservice.check_availability('jeroenbladibla.nl'))
+# Find entry
+found_dns_entries = []
+for dns_entry in dns_entries['dnsEntries']:
+  if dns_entry['name'] == find_dns_entry and dns_entry['type'] == 'A':
+    found_dns_entries.append(dns_entry)
+    print (dns_entry)
+print (json.dumps(found_dns_entries))
+print()
+
+# Change entry for this domain with current public IP
+if len(found_dns_entries) == 0:
+  data = '''{
+    "dnsEntry": {
+      "name": "''' + find_dns_entry + '''",
+      "expire": 300,
+      "type": "A",
+      "content": "''' + pub_ip + '''"
+    }
+  }
+  '''
+  domains.post_dns(domain, data)
+elif len(found_dns_entries) == 1:
+  if found_dns_entries[0]['content'] == pub_ip:
+    print('No change needed')
+  else:
+    print('Change dns entry')
+    print('From: ' + json.dumps(found_dns_entries[0]))
+    found_dns_entries[0]['content'] = pub_ip
+    print('To  : ' + json.dumps(found_dns_entries[0]))
+    domains.patch_dns(domain, '{"dnsEntry": ' + json.dumps(found_dns_entries[0]) +'}')
+else:
+  print('Multiple entries found, can\'t determine which to change (if any).')
