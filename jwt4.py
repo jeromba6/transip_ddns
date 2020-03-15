@@ -19,7 +19,8 @@ pub_ip=json.loads(res.text)['ip']
 key_file = open(keyfile, "r")
 key = key_file.read()
 key_file.close()
-headers = transip_api_v6.Generic.get_headers(login, key)
+# ph = transip_api_v6.Generic(login, key)
+headers = transip_api_v6.Generic(login, key).get_headers()
 
 # Request domains managed by this account
 domains=transip_api_v6.Domains(headers)
