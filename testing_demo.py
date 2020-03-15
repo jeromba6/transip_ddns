@@ -24,9 +24,26 @@ headers = transip_api_v6.Generic(login, key, True).get_headers()
 
 # Request domains managed by this account
 domains=transip_api_v6.Domains(headers)
-managed_domains=domains.get()
+managed_domains=domains.list_domains()
 print(json.dumps(managed_domains,indent=2))
 print()
+
+managed_domains=domains.list_dns_entries(domain)
+print(json.dumps(managed_domains,indent=2))
+print()
+
+data = '''{
+  "dnsEntry": {
+    "name": "@",
+    "expire": 86400,
+    "type": "A",
+    "content": "37.97.254.27"
+  }
+}'''
+managed_domains=domains.delete_dns_entry(domain, data)
+print(json.dumps(managed_domains,indent=2))
+print()
+exit()
 
 # Request DNS entries for this domain
 dns_entries = domains.get_dns(domain)
