@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import requests
 import json
-import transip_api_v6
+import transipApiV6
 
 login          = 'jvgemert'
 keyfile        = 'test copy.pem'
@@ -19,11 +19,10 @@ pub_ip=json.loads(res.text)['ip']
 key_file = open(keyfile, "r")
 key = key_file.read()
 key_file.close()
-# ph = transip_api_v6.Generic(login, key)
-headers = transip_api_v6.Generic(login, key).get_headers()
+headers = transipApiV6.Generic(login, key).get_headers()
 
 # Request domains managed by this account
-domains=transip_api_v6.Domains(headers)
+domains=transipApiV6.Domains(headers)
 managed_domains=domains.list_domains()
 print(json.dumps(managed_domains,indent=2))
 print()
