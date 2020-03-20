@@ -7,3 +7,5 @@ This can be used as a script to update your dns entry at Transip to your public 
 example:
 
 ./transip_ddns.py -l jeromba6 -f ddns.pem -d example.com -e www
+
+This would retreive you public IP and make sure www.example.com contains an A-record that contains this public IP.
