@@ -18,7 +18,7 @@ jobs:
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          registry: docker.pkg.github.com
+          registry: ghcr.io
           repository: jeromba6/transip_ddns/transip_ddns
           platforms: linux/amd64,linux/arm64
           tag_with_ref: true
