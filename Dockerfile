@@ -1,4 +1,4 @@
-FROM python:3.9.0
+FROM python:3.9.7-slim
 COPY transip_ddns.py /
 
 RUN pip install transipApiV6 requests crypto pyOpenSSL
