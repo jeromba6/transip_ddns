@@ -7,10 +7,6 @@ jobs:
     name: Push Docker image to GitHub Packages
     runs-on: ubuntu-latest
     steps:
-      # - name: Get the version
-      #   id: get_version
-      #   run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-      #   run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - name: Check out the repo
         uses: actions/checkout@v2
       - name: Set up QEMU
@@ -32,4 +28,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/jeromba6/transip_ddns/transip_ddns:latest
-            ghcr.io/jeromba6/transip_ddns/transip_ddns:${{ VERSION }}
+            ghcr.io/jeromba6/transip_ddns/transip_ddns:${GITHUB_REF/refs\/tags\//}
