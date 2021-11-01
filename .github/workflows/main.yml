@@ -7,6 +7,8 @@ jobs:
     name: Push Docker image to GitHub Packages
     runs-on: ubuntu-latest
     steps:
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Check out the repo
         uses: actions/checkout@v2
       - name: Set up QEMU
@@ -27,4 +29,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/jeromba6/transip_ddns/transip_ddns:latest
-            ghcr.io/jeromba6/transip_ddns/transip_ddns:${{GITHUB_REF/refs\/tags\//}}
+            ghcr.io/jeromba6/transip_ddns/transip_ddns:${{ env.RELEASE_VERSION }}
