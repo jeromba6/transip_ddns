@@ -27,4 +27,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/jeromba6/transip_ddns/transip_ddns:latest
-            ghcr.io/jeromba6/transip_ddns/transip_ddns:${GITHUB_REF/refs\/tags\//}
+            ghcr.io/jeromba6/transip_ddns/transip_ddns:${{GITHUB_REF/refs\/tags\//}}
