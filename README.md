@@ -12,8 +12,8 @@ This would retreive you public IP and make sure www.example.com contains an A-re
 
 There is also a docker image avalible you can use it in the following way:
 
-docker run -it -v [DIR_THAT_CONTAINS_FILE_THAT_CONTAINS_TRANSIP_API_KEY]:/keydir docker.pkg.github.com/jeromba6/transip_ddns/transip_ddns:1.0 -l [TRANSIP_USERNAME] -d [DOMAIN_NAME] -e [DOMAIN_ENTRY] -f /keydir/[FILE_THAT_CONTAINS_TRANSIP_API_KEY]
+docker run -it -v [DIR_THAT_CONTAINS_FILE_THAT_CONTAINS_TRANSIP_API_KEY]:/keydir ghcr.io/jeromba6/transip_ddns/transip_ddns:1.1 -l [TRANSIP_USERNAME] -d [DOMAIN_NAME] -e [DOMAIN_ENTRY] -f /keydir/[FILE_THAT_CONTAINS_TRANSIP_API_KEY]
 
 example:
 
-```docker run -it -v /home/jeromba6/keydir:/keydir docker.pkg.github.com/jeromba6/transip_ddns/transip_ddns:1.0 -l jeromba6 -d example.com -e www -f /keydir/transip-ddns.pem```
+```docker run -it -v /home/jeromba6/keydir:/keydir ghcr.io/jeromba6/transip_ddns/transip_ddns:1.1 -l jeromba6 -d example.com -e www -f /keydir/transip-ddns.pem```
