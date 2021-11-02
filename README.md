@@ -17,3 +17,36 @@ docker run -it -v [DIR_THAT_CONTAINS_FILE_THAT_CONTAINS_TRANSIP_API_KEY]:/keydir
 example:
 
 ```docker run -it -v /home/jeromba6/keydir:/keydir ghcr.io/jeromba6/transip_ddns/transip_ddns:latest -l jeromba6 -d example.com -e www -f /keydir/transip-ddns.pem```
+
+
+It can also run in a kubernetes cronjob, example yaml below:
+```
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: transip-ddns
+  namespace: ddns
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: transip-ddns
+            image: ghcr.io/jeromba6/transip_ddns/transip_ddns:latest
+            imagePullPolicy: IfNotPresent
+            args: [ "-l", "jermomba6", "-d", "example.com", "-e", "www", "-f", "/keys/ddns.key"]
+            volumeMounts:
+            - mountPath: "/keys/ddns.key"
+              subPath: key
+              name: key
+          restartPolicy: OnFailure
+          volumes:
+          - name: key
+            secret:
+              secretName: transip
+              items:
+              - key: key
+                path: key
+```
