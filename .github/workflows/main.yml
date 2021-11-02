@@ -31,5 +31,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/jeromba6/transip_ddns/transip_ddns:latest
-            ghcr.io/jeromba6/transip_ddns/transip_ddns:${{ env.RELEASE_VERSION }}
+            ghcr.io/${{ github.actor }}/${{ env.REPO }}/${{ env.REPO }}:latest
+            ghcr.io/${{ github.actor }}/${{ env.REPO }}/${{ env.REPO }}:${{ env.RELEASE_VERSION }}
